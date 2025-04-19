@@ -1,0 +1,256 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>sciprog_a26</title><meta name="generator" content="MATLAB 9.14"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2025-03-25"><meta name="DC.source" content="sciprog_a26.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="comment">% kundyz muktar, matlab r2023a, sci prog a2, ex 6</span>
+
+<span class="comment">% we use z0=5 in each case. then we compute errors e_k = |z_k - x_star| and the convergence order q_k = log(e_{k+1}/e_k)/log(e_k/e_{k-1}).</span>
+<span class="comment">% aslo we plot q_k over k.</span>
+
+clear; clc; close <span class="string">all</span>;
+</pre><p>a. f(z) = z^2 + exp(z) - 2, df(z) = 2z + exp(z) ref sol 0.537274491735866</p><pre class="codeinput">f_a = @(z) z.^2 + exp(z) - 2;
+df_a = @(z) 2*z + exp(z);
+x_star_a = 0.537274491735866;
+z0 = 5;
+[z_a, zvec_a] = newton(f_a, df_a, z0);
+errors_a = abs(zvec_a - x_star_a);
+q_a = compute_order(errors_a);
+
+figure;
+plot(1:length(q_a), q_a, <span class="string">'o-'</span>);
+loglog(1:length(q_a), q_a, <span class="string">'o-'</span>);
+xlabel(<span class="string">'iteration index'</span>); ylabel(<span class="string">'q_k'</span>);
+title(<span class="string">'test (a): convergence order'</span>);
+</pre><img vspace="5" hspace="5" src="sciprog_a26_01.png" alt=""> <p>b. f(z) = log(z^2) - z = 2*log(z) - z, df(z) = 2/z - 1 ref sol 0.6529186404192047</p><pre class="codeinput">f_b = @(z) 2*log(z) - z;
+df_b = @(z) 2./z - 1;
+x_star_b = 0.6529186404192047;
+[z_b, zvec_b] = newton(f_b, df_b, z0);
+errors_b = abs(zvec_b - x_star_b);
+q_b = compute_order(errors_b);
+
+figure;
+plot(1:length(q_b), q_b, <span class="string">'o-'</span>);
+xlabel(<span class="string">'iteration index'</span>); ylabel(<span class="string">'q_k'</span>);
+title(<span class="string">'test (b): convergence order'</span>);
+</pre><img vspace="5" hspace="5" src="sciprog_a26_02.png" alt=""> <p>c. f(z) = (cos(2z))^2 - z^2 df(z) = 2*cos(2z)*(-2*sin(2z))-2z = -4*cos(2z)*sin(2z) - 2z ref sol 0.514933264661129</p><pre class="codeinput">f_c = @(z) (cos(2*z)).^2 - z.^2;
+df_c = @(z) -4*cos(2*z).*sin(2*z) - 2*z;
+x_star_c = 0.514933264661129;
+[z_c, zvec_c] = newton(f_c, df_c, z0);
+errors_c = abs(zvec_c - x_star_c);
+q_c = compute_order(errors_c);
+
+figure;
+plot(1:length(q_c), q_c, <span class="string">'o-'</span>);
+xlabel(<span class="string">'iteration index'</span>); ylabel(<span class="string">'q_k'</span>);
+title(<span class="string">'test (c): convergence order'</span>);
+</pre><pre class="codeinput"><span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="keyword">function</span> [z, zvec] = newton(f_handle, df_handle, z0)
+    <span class="comment">% implements newton's method for f_handle: Rd to Rd w jacobian df_handle</span>
+    <span class="comment">% columns of zvec are the iterates. z is the final one.</span>
+
+    abs_tol = 1e-12;
+    max_iters = 1000;
+    d = length(z0);
+    zvec = zeros(d, max_iters + 1);
+    zvec(:, 1) = z0;
+
+    <span class="keyword">for</span> iter_index = 1:max_iters
+        current_z = zvec(:, iter_index);
+        <span class="comment">% newton step</span>
+        zvec(:, iter_index + 1) = current_z - df_handle(current_z)\f_handle(current_z);
+        <span class="keyword">if</span> norm(zvec(:, iter_index + 1) - current_z) &lt;= abs_tol
+            <span class="keyword">break</span>;
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    zvec = zvec(:, 1:iter_index + 1); <span class="comment">% when method stops early, reset the zvec size</span>
+    z = zvec(:, end); <span class="comment">% extracting the final sol</span>
+<span class="keyword">end</span>
+</pre><pre class="codeinput"><span class="keyword">function</span> q_vals = compute_order(e_vals)
+    n = length(e_vals);
+    <span class="keyword">if</span> n &lt; 3
+        q_vals = [];
+        <span class="keyword">return</span>;
+    <span class="keyword">end</span>
+    <span class="comment">%%%%%%%%5%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+    q_vals = zeros(1, n-2);
+    <span class="keyword">for</span> i = 2:(n-1)
+        <span class="keyword">if</span> e_vals(i) &gt; 0 &amp;&amp; e_vals(i-1) &gt; 0
+            q_vals(i-1) = log(e_vals(i+1)/e_vals(i)) / log(e_vals(i)/e_vals(i-1)); <span class="comment">% given error</span>
+    <span class="comment">%%%%%%%%5%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+        <span class="keyword">else</span>
+            q_vals(i-1) = NaN;
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2023a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+% kundyz muktar, matlab r2023a, sci prog a2, ex 6
+
+% we use z0=5 in each case. then we compute errors e_k = |z_k - x_star| and the convergence order q_k = log(e_{k+1}/e_k)/log(e_k/e_{k-1}).
+% aslo we plot q_k over k.
+
+clear; clc; close all;
+
+
+
+
+%%
+% a. f(z) = z^2 + exp(z) - 2, df(z) = 2z + exp(z)
+% ref sol 0.537274491735866
+f_a = @(z) z.^2 + exp(z) - 2;
+df_a = @(z) 2*z + exp(z);
+x_star_a = 0.537274491735866;
+z0 = 5; 
+[z_a, zvec_a] = newton(f_a, df_a, z0);
+errors_a = abs(zvec_a - x_star_a);
+q_a = compute_order(errors_a);
+
+figure;
+plot(1:length(q_a), q_a, 'o-');
+loglog(1:length(q_a), q_a, 'o-');
+xlabel('iteration index'); ylabel('q_k');
+title('test (a): convergence order');
+
+
+%%
+% b. f(z) = log(z^2) - z = 2*log(z) - z, df(z) = 2/z - 1
+% ref sol 0.6529186404192047
+f_b = @(z) 2*log(z) - z;
+df_b = @(z) 2./z - 1;
+x_star_b = 0.6529186404192047;
+[z_b, zvec_b] = newton(f_b, df_b, z0);
+errors_b = abs(zvec_b - x_star_b);
+q_b = compute_order(errors_b);
+
+figure;
+plot(1:length(q_b), q_b, 'o-');
+xlabel('iteration index'); ylabel('q_k');
+title('test (b): convergence order');
+
+
+%%
+% c. f(z) = (cos(2z))^2 - z^2
+% df(z) = 2*cos(2z)*(-2*sin(2z))-2z = -4*cos(2z)*sin(2z) - 2z
+% ref sol 0.514933264661129
+f_c = @(z) (cos(2*z)).^2 - z.^2;
+df_c = @(z) -4*cos(2*z).*sin(2*z) - 2*z;
+x_star_c = 0.514933264661129;
+[z_c, zvec_c] = newton(f_c, df_c, z0);
+errors_c = abs(zvec_c - x_star_c);
+q_c = compute_order(errors_c);
+
+figure;
+plot(1:length(q_c), q_c, 'o-');
+xlabel('iteration index'); ylabel('q_k');
+title('test (c): convergence order');
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function [z, zvec] = newton(f_handle, df_handle, z0)
+    % implements newton's method for f_handle: Rd to Rd w jacobian df_handle
+    % columns of zvec are the iterates. z is the final one.
+    
+    abs_tol = 1e-12;
+    max_iters = 1000;
+    d = length(z0);
+    zvec = zeros(d, max_iters + 1);
+    zvec(:, 1) = z0;
+
+    for iter_index = 1:max_iters
+        current_z = zvec(:, iter_index);
+        % newton step
+        zvec(:, iter_index + 1) = current_z - df_handle(current_z)\f_handle(current_z);
+        if norm(zvec(:, iter_index + 1) - current_z) <= abs_tol
+            break;
+        end
+    end
+
+    zvec = zvec(:, 1:iter_index + 1); % when method stops early, reset the zvec size
+    z = zvec(:, end); % extracting the final sol
+end
+%%
+function q_vals = compute_order(e_vals)
+    n = length(e_vals);
+    if n < 3
+        q_vals = [];
+        return;
+    end
+    %%%%%%%%5%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    q_vals = zeros(1, n-2);
+    for i = 2:(n-1)
+        if e_vals(i) > 0 && e_vals(i-1) > 0
+            q_vals(i-1) = log(e_vals(i+1)/e_vals(i)) / log(e_vals(i)/e_vals(i-1)); % given error
+    %%%%%%%%5%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  
+        else
+            q_vals(i-1) = NaN;
+        end
+    end
+end
+
+##### SOURCE END #####
+--></body></html>
