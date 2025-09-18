@@ -51,7 +51,8 @@ with constants f1(t) = 2.0, f2(t) = -1.0
 ---
 
 ## 📂 Files
-- `exercise4.m` → MATLAB code (both parts a and b, with exact solution for part a)  
+- `sciprog_a14a.m` → MATLAB code for Exercise 4a (y' = -y test equation with exact solution)  
+- `sciprog_a14b.m` → MATLAB code for Exercise 4b (linear ODE with forcing term)  
 - `results_part_a.png` → plot comparing exact and numerical solutions for part a  
 - `results_part_b.png` → plot comparing explicit, implicit, and midpoint for part b  
 
