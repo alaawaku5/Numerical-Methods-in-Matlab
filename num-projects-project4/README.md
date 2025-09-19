@@ -1,120 +1,103 @@
-# Project 3 – Quadrature and 1D Finite Element Method
+# Project 4 – Eigenvalue Iterations, 2D Quadrature, and FEM Data Structures
 
-This project investigates **numerical quadrature (integration)** methods and the implementation of the **1D P1 Finite Element Method (FEM)** for elliptic boundary value problems.  
-All code is written in MATLAB. The project highlights how quadrature accuracy affects PDE solvers and culminates in a full FEM implementation.
+This project combines three major components:  
+1. Iterative methods for eigenvalue computations.  
+2. 2D quadrature rules on rectangles and triangles.  
+3. Finite Element Method (FEM) data structures and efficient matrix assembly.  
+
+All implementations are in MATLAB, using a mix of live scripts (`.mlx`) for demonstrations and functions (`.m`) for reusable components.
 
 ---
 
 ## 📌 Project Components
 
-### Quadrature Weights via Linear Systems
-- **File:** `a31.m`  
-- Implemented computation of quadrature weights for given nodes on [0,1] by solving a linear system Aw=b.  
-- Verified exact integration of polynomials up to degree n−1.
+### Eigenvalue Iterations
+- **Files:** `a41.mlx`, `a42.mlx`  
+- Implemented and tested:
+  - Power iteration → approximates the largest eigenvalue.  
+  - Inverse iteration → approximates the smallest eigenvalue.  
+  - Rayleigh quotient iteration → converges rapidly to nearby eigenvalues.  
+- Compared against MATLAB’s `eigs`.  
+- Analyzed sensitivity to the initial guess.  
 
 ---
 
-### Quadrature with Equidistant Nodes
-- **File:** `a32.m`  
-- Tested equidistant nodes x_j = j/n for n = 1,…,20.  
-- Integrated:
-  - f(x)=exp(x) → observed exponential error decay (semilog plot).  
-  - f(x)=x^(3/2) → observed algebraic error decay (log–log plot).  
+### Condition Number Estimation
+- **File:** `a42.mlx`  
+- Used eigenvalue iterations to approximate the condition number κ₂(A) = λ_max / λ_min.  
+- Tested on `gallery('poisson',k)` matrices with increasing size.  
+- Verified scaling behavior with k².  
 
 ---
 
-### Quadrature on Arbitrary Intervals
-- **File:** `a33.m`  
-- Implemented `[x, w] = quadrature(a, b, n)` that rescales quadrature from [0,1] to arbitrary [a,b].  
-- Verified using substitution φ(t)=a+t(b−a).
+### 2D Quadrature on Rectangles
+- **Files:** `a43.mlx`, `a44.mlx`  
+- Extended 1D quadrature rules to 2D via tensor products.  
+- Validated by integrating monomials x^j y^k exactly.  
+- Applied Gauss quadrature to f(x,y)=exp(−(x²+y²)) over [0,1]×[0,2].  
+- Observed exponential error decay in semilog plots.  
 
 ---
 
-### Testing Arbitrary Interval Quadrature
-- **File:** `a34.m`  
-- Computed ∫_{−π}^{exp(1)} exp(−x) dx ≈ 23.0747.  
-- Compared error vs number of quadrature points n=1,…,20.  
-- Confirmed convergence rate in semilog plots.
+### 2D Quadrature on Triangles
+- **Files:** `a45.mlx`, `a46.mlx`, `a47.mlx`, `a48.mlx`  
+- Implemented quadrature rules on:
+  - Reference triangle (Duffy transform).  
+  - Arbitrary triangles via affine mappings.  
+- Validated using monomials and smooth test functions f(x,y)=sin(2π(x+y)).  
+- Showed exponential convergence until dominated by round-off errors.  
 
 ---
 
-### Gauss–Legendre Quadrature
-- **Files:** `a35.m`, `gaussLegendre.m`  
-- Adapted Gauss–Legendre quadrature from [−1,1] to arbitrary [a,b].  
-- Implemented `[x, w] = quadratureGauss(a, b, n)`.  
-- Verified that Gauss quadrature integrates polynomials up to degree 2n−1 exactly.
+### FEM Data Structures (L-shape Domain)
+- **Files:** `a49.mlx`, `Lshape_coordinates.dat`, `Lshape_elements.dat`, `Lshape_dirichlet.dat`  
+- Parsed triangulation data for the L-shaped domain.  
+- Visualized triangulation with interior and boundary edges.  
+- Computed:
+  - Domain area |Ω|.  
+  - Boundary length.  
 
 ---
 
-### Testing Gauss Quadrature
-- **File:** `a36.m`  
-- Repeated the test integral from `a34.m` with Gauss quadrature.  
-- Added error curves for Gauss quadrature vs equidistant quadrature.  
-- Observed superior accuracy of Gauss quadrature.
+### FEM Quadrature on L-shape
+- **File:** `a410.mlx`  
+- Used triangle quadrature to approximate ∫_Ω f(x,y) dxdy for f(x,y)=exp(−(x²+y²)).  
+- Repeated on refined meshes (`myrefine.m`).  
+- Plotted quadrature error vs number of triangles N, showing algebraic convergence.  
 
 ---
 
-### Advanced Quadrature Test
-- **Files:** `a37_part1.m`, `a37_part2.m`  
-- Computed ∫_{−5}^{5} 1/(1+x^2) dx ≈ 2.7468 with both equidistant and Gauss quadrature.  
-- Compared accuracy for n=1,…,50 nodes.  
-- Observed faster convergence of Gauss quadrature, especially for smooth integrands.
-
----
-
-### Implementing P1 Finite Element Method (Diffusion Only)
-- **File:** `a38.m`, `p1FEM.m`  
-- Implemented FEM solver for −(a u′)′ = f with u(0)=u(1)=0 on [0,1].  
-- Used hat functions as basis and numerical quadrature for assembling stiffness matrix A and load vector L.  
-- Verified with a(x)=1, f(x)=1 against exact solution u(x)=½(1−x)x.
-
----
-
-### General Second-Order Elliptic Problems
-- **File:** `a39_310.m`  
-- Extended FEM to include:
-  - Diffusion term (A matrix)  
-  - Advection term (B matrix)  
-  - Reaction term (C matrix)  
-- Implemented `x = p1FEM(a, b, c, f, t)` handling general coefficients.  
-- Assembled full system Sx=L with contributions from A, B, and C.
-
----
-
-### Diffusion–Advection–Reaction Test Cases
-- **Files:** `a311.m`, `a311_2.m`  
-- Tested FEM for a(x)=1, c(x)=−1, f(x)=1, and b(x) ∈ {−10,−5,0,5,10}.  
-- Plotted solutions for different advection constants b.  
-- Demonstrated how increasing |b| skews the solution profile, illustrating the role of advection.
-
----
-
-### Efficiency and Sparse Matrices
-- **File:** `last.m` (if used)  
-- Investigated computational time for FEM assembly with N=2^n elements.  
-- Produced log–log plots of runtime vs N, showing polynomial growth.  
-- Discussed how FEM matrices are tridiagonal/sparse, and how MATLAB’s `sparse` format can reduce storage and improve efficiency.
+### FEM Assembly and Efficiency
+- **Files:** `a411.mlx`, `assemblyLaplace.m`, `assemblyLaplaceFast.m`, `provideGeometricData.m`, `myrefine.m`  
+- Implemented assembly of FEM stiffness matrices:
+  - Standard assembly (`assemblyLaplace.m`).  
+  - Optimized sparse-aware assembly (`assemblyLaplaceFast.m`).  
+- Benchmarked runtime for successive mesh refinements.  
+- Log–log plots showed:
+  - Naive assembly grows superlinearly.  
+  - Sparse assembly scales nearly linearly.  
 
 ---
 
 ## 📊 Key Outcomes
-- Verified exponential vs algebraic convergence of quadrature for smooth vs singular integrands.  
-- Demonstrated superior accuracy of Gauss quadrature compared to equidistant-node quadrature.  
-- Implemented the full P1 FEM for 1D elliptic PDEs, including diffusion, advection, and reaction terms.  
-- Showed the effect of advection on solution shape.  
-- Identified efficiency gains possible with sparse matrix assembly in FEM.
+- Demonstrated convergence and stability properties of eigenvalue iteration methods.  
+- Verified condition number scaling for Poisson matrices.  
+- Implemented and validated quadrature rules on 2D rectangles and triangles.  
+- Built FEM data structures for the L-shape domain and computed geometric properties.  
+- Showed convergence of quadrature-based FEM integrals with mesh refinement.  
+- Benchmarked matrix assembly, confirming the efficiency of sparse data structures.  
 
 ---
 
 ## 📂 File Index
-- `a31.m` → Quadrature weights (linear system formulation)  
-- `a32.m` → Equidistant quadrature nodes, error plots  
-- `a33.m` → Quadrature on arbitrary intervals  
-- `a34.m` → Test of quadrature on ∫ exp(−x) dx over [−π,exp(1)]  
-- `a35.m`, `gaussLegendre.m` → Gauss–Legendre quadrature implementation  
-- `a36.m` → Gauss quadrature test vs equidistant quadrature  
-- `a37_part1.m`, `a37_part2.m` → Quadrature test on ∫ 1/(1+x^2) dx  
-- `a38.m`, `p1FEM.m` → FEM implementation for diffusion-only problems  
-- `a39_310.m` → Extended FEM for diffusion–advection–reaction problems  
-- `a311.m`, `a311_2.m` → Test cases with varying advection parameter b  
-- *(optional)* `last.m` → Runtime scaling and sparse matrix discussion  
+- `a41.mlx` → Eigenvalue iterations (power, inverse, Rayleigh)  
+- `a42.mlx` → Condition number via eigenvalue iteration  
+- `a43.mlx`, `a44.mlx` → 2D quadrature on rectangles  
+- `a45.mlx`, `a46.mlx`, `a47.mlx`, `a48.mlx` → 2D quadrature on reference and arbitrary triangles  
+- `a49.mlx` → FEM mesh data structure (L-shape domain)  
+- `a410.mlx` → FEM quadrature on L-shape domain  
+- `a411.mlx` → FEM assembly performance (naive vs sparse)  
+- `assemblyLaplace.m`, `assemblyLaplaceFast.m` → FEM stiffness matrix assembly functions  
+- `provideGeometricData.m` → FEM mesh preprocessing  
+- `myrefine.m` → Mesh refinement utility  
+- `Lshape_coordinates.dat`, `Lshape_elements.dat`, `Lshape_dirichlet.dat` → Triangulation data for L-shape  
